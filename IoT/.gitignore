@@ -4,3 +4,4 @@
 .vscode/launch.json
 .vscode/ipch
 include/Configuration.h
+include/Configuration.cpp
