@@ -5,12 +5,16 @@ import { useEffect, useState } from "react";
 import { User } from "@/types/User";
 
 export default function Index() {
-  const [users, setUsers] = useState<User[]>()
-  const { getAllUsers} = useUserContext()
+  const [userList, setUserList] = useState<User[]>([])
+  const {getAllUsers, isCurrentUser} = useUserContext()
 
   useEffect(()=>{
     getAllUsers().then((data) => {
-      setUsers(data);
+      data.forEach(user => {
+        if(!isCurrentUser(user)) {
+          setUserList([...userList, user])
+        }
+      });
     });
   }, [])
 
@@ -23,7 +27,7 @@ export default function Index() {
       }}
     >
       <FlatList
-        data={users}
+        data={userList}
         renderItem={({item : user}) => 
             <PlayerCard name={user.name}></PlayerCard>
         }/>

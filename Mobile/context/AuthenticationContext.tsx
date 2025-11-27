@@ -75,7 +75,7 @@ export function AuthenticationContextProvider({ children } : { children: React.R
     }
 
     return ( 
-        <AuthenticationContext.Provider value={{ isAuthenticated, register, login, logout, updateUserPassword }}>
+        <AuthenticationContext.Provider value={{ isAuthenticated, register, login, logout }}>
             {children}
         </AuthenticationContext.Provider>
     )
