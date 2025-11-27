@@ -1,7 +1,7 @@
 import { useUserContext } from "@/hooks/useUser";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { router, useSegments } from "expo-router";
-import { createUserWithEmailAndPassword, EmailAuthProvider, getAuth, onAuthStateChanged, reauthenticateWithCredential, signInWithEmailAndPassword, signOut, updatePassword } from "firebase/auth";
+import { createUserWithEmailAndPassword, onAuthStateChanged, signInWithEmailAndPassword, signOut } from "firebase/auth";
 import { doc, setDoc } from "firebase/firestore";
 import { createContext, useEffect, useState, } from "react";
 import { auth, db } from "../firebaseConfig";
@@ -24,7 +24,6 @@ export function AuthenticationContextProvider({ children } : { children: React.R
     useEffect(() => {
         const unsub = onAuthStateChanged(auth, (user) => {
             if (user) {
-                console.log("called")
                 getUserCreds(user.uid);
                 setIsAuthenticated(true);
             } else {
@@ -37,6 +36,10 @@ export function AuthenticationContextProvider({ children } : { children: React.R
         
     const register = async (email:string, password:string, name: string, lastName: string) => {
        await createUserWithEmailAndPassword(auth, email, password).then((userCreds) => {
+            setDoc(doc(db, "users", userCreds.user.uid), {
+                name: name,
+                lastName: lastName
+            });
             AsyncStorage.setItem("avatar-"+userCreds.user.uid, defaultAvatar);
             goToIndex();
        }).catch(error => {
@@ -69,20 +72,6 @@ export function AuthenticationContextProvider({ children } : { children: React.R
         }).catch(error => {
             console.error(error);
         })
-    }
-
-    const updateUserPassword = async (oldPassword: string, newPassword: string) => {
-        const auth = getAuth()
-        const user = auth.currentUser;
-        if (!user || !user.email) {
-            throw new Error("Aucun utilisateur est connecté");
-        }
-
-        const credential = EmailAuthProvider.credential(user.email, oldPassword);
-
-        await reauthenticateWithCredential(user, credential);
-
-        await updatePassword(user, newPassword);
     }
 
     return ( 

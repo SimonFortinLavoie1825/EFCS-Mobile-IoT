@@ -1,6 +1,6 @@
-import { UserContextType } from "@/types/User";
+import { User, UserContextType } from "@/types/User";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { doc, getDoc } from "firebase/firestore";
+import { collection, doc, getDoc, getDocs } from "firebase/firestore";
 import { createContext, useEffect, useState } from "react";
 import { db } from "../firebaseConfig";
 
@@ -42,8 +42,25 @@ export function UserContextProvider({ children } : { children: React.ReactNode }
         }
     }
 
+    async function getAllUsers() : Promise<User[]> {
+        const result = await getDocs(collection(db, "users"));
+
+
+        const users: User[] = [];
+        result.forEach((doc) => {
+            users.push({
+                "userId": doc.id,
+                "name": doc.data().name,
+                "lastName": doc.data().lastName
+            })
+        })
+
+        console.log(users)
+        return users;
+    }
+
     return (
-        <UserContext.Provider value={{name, lastName, profileImage, setProfileImage, getUserCreds}}>
+        <UserContext.Provider value={{name, lastName, profileImage, setProfileImage, getUserCreds, getAllUsers}}>
             {children}
         </UserContext.Provider>
     )
