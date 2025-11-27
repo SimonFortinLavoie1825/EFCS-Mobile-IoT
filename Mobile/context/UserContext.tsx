@@ -43,10 +43,20 @@ export function UserContextProvider({ children } : { children: React.ReactNode }
     }
 
     async function getAllUsers() : Promise<User[]> {
-        const users = await getDocs(collection(db, "users"));
+        const result = await getDocs(collection(db, "users"));
 
-        console.log(users.docs);
-        return [{"lastName" : "", "name": "", "userId" : ""}];
+
+        const users: User[] = [];
+        result.forEach((doc) => {
+            users.push({
+                "userId": doc.id,
+                "name": doc.data().name,
+                "lastName": doc.data().lastName
+            })
+        })
+
+        console.log(users)
+        return users;
     }
 
     return (

@@ -1,13 +1,17 @@
 import { FlatList, View } from "react-native";
 import PlayerCard from "./components/playerCard";
 import { useUserContext } from "@/hooks/useUser";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { User } from "@/types/User";
 
 export default function Index() {
-  const {getAllUsers} = useUserContext()
+  const [users, setUsers] = useState<User[]>()
+  const { getAllUsers} = useUserContext()
 
   useEffect(()=>{
-    getAllUsers()
+    getAllUsers().then((data) => {
+      setUsers(data);
+    });
   }, [])
 
   return (
@@ -19,11 +23,9 @@ export default function Index() {
       }}
     >
       <FlatList
-        data={["a","b","c"]}
-        renderItem={({item : player}) => 
-            <View>
-              <PlayerCard name={player}></PlayerCard>
-            </View>
+        data={users}
+        renderItem={({item : user}) => 
+            <PlayerCard name={user.name}></PlayerCard>
         }/>
     </View>
   );

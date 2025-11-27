@@ -2,7 +2,7 @@ import React, { ReactNode } from 'react'
 import { TouchableOpacity, View, StyleSheet } from 'react-native'
 
 type EnableableButtonProps = {
-    isEnabled: boolean,
+    isEnabled: boolean | undefined,
     onPress: () => void,
     children: ReactNode
 }
