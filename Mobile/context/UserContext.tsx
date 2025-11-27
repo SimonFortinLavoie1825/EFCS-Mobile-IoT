@@ -59,8 +59,12 @@ export function UserContextProvider({ children } : { children: React.ReactNode }
         return users;
     }
 
+    function isCurrentUser(user: User) : boolean {
+        return user.userId === uid;
+    }
+
     return (
-        <UserContext.Provider value={{name, lastName, profileImage, setProfileImage, getUserCreds, getAllUsers}}>
+        <UserContext.Provider value={{name, lastName, profileImage, setProfileImage, getUserCreds, getAllUsers, isCurrentUser}}>
             {children}
         </UserContext.Provider>
     )
