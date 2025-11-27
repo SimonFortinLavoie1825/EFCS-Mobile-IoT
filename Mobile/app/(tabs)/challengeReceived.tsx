@@ -1,6 +1,6 @@
 import { View, FlatList, StyleSheet } from "react-native";
 import React, { useState } from "react";
-import CustomButton from "@/components/CustomButton";
+import CustomButton from "@/app/components/CustomButton";
 
 
 export default function ChallengeReceived() {

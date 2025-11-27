@@ -8,8 +8,8 @@ import React, { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useUserContext } from "@/hooks/useUser";
 import * as DocumentPicker from "expo-document-picker";
-import CustomInputText from "@/components/CustomInputText";
-import CustomButton from "@/components/CustomButton";
+import CustomInputText from "@/app/components/CustomInputText";
+import CustomButton from "@/app/components/CustomButton";
 
 export default function Profil() {
   const [currentPassword, setPassword] = useState<string>("");
