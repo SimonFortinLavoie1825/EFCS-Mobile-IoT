@@ -4,17 +4,13 @@ import {
   View,
   StyleSheet,
 } from "react-native";
-import React, { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useUserContext } from "@/hooks/useUser";
 import * as DocumentPicker from "expo-document-picker";
-import CustomInputText from "@/app/components/CustomInputText";
 import CustomButton from "@/app/components/CustomButton";
 
 export default function Profil() {
-  const [currentPassword, setPassword] = useState<string>("");
-  const [newPassword, setNewPassword] = useState<string>("");
-  const { logout, updateUserPassword } = useAuth();
+  const { logout } = useAuth();
   const { name , lastName, profileImage, setProfileImage } = useUserContext();
 
   async function loadFile(): Promise<void> {
@@ -29,13 +25,6 @@ export default function Profil() {
     const uri = result.assets[0].uri;
     setProfileImage(uri);
   }
-
-  function handleSubmitNewPassword(oldPassword: string, newPassword: string) {
-    updateUserPassword(oldPassword, newPassword);
-    setNewPassword("");
-    setPassword("");
-  }
-
   return (
     <View style={styles.container}>
       <View style={styles.avatar}>
@@ -49,24 +38,6 @@ export default function Profil() {
       <Text style={styles.title}>
         Bonjour, {name} {lastName}
       </Text>
-      <Text style={styles.title}>Changer le mot de passe</Text>
-      <CustomInputText
-        placeholder="Mot de passe actuel"
-        value={currentPassword}
-        onChangeText={(text: string) => setPassword(text)}
-      />
-      <CustomInputText
-        placeholder="Nouveau mot de passe"
-        value={newPassword}
-        onChangeText={(text: string) => setNewPassword(text)}
-      />
-      <CustomButton
-        title="Modifier le mot de passe"
-        isDisabled={false}
-        onPressAction={() =>
-          handleSubmitNewPassword(currentPassword, newPassword)
-        }
-      />
       <CustomButton
         title="Se déconnecter"
         isDisabled={false}
