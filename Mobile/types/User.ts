@@ -1,11 +1,12 @@
 export type UserContextType = {
+    uid: string
     name: string,
     lastName: string,
     profileImage: string,
     setProfileImage: (profileImage: string) => void,
     getUserCreds: (uid: string) => Promise<void>,
-    getAllUsers: () => Promise<User[]>
-    isCurrentUser: (user: User) => boolean
+    resetUser: () => void,
+    getAllUsers: () => Promise<User[]>,
 }
 
 export type User = {

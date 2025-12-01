@@ -3,20 +3,25 @@ import PlayerCard from "./components/playerCard";
 import { useUserContext } from "@/hooks/useUser";
 import { useEffect, useState } from "react";
 import { User } from "@/types/User";
+import { useAuth } from "@/hooks/useAuth";
 
 export default function Index() {
   const [userList, setUserList] = useState<User[]>([])
-  const {getAllUsers, isCurrentUser} = useUserContext()
+  const {uid, getAllUsers} = useUserContext();
 
   useEffect(()=>{
+    setUserList([]);
+
     getAllUsers().then((data) => {
+      let foundUsers: User[] = []
       data.forEach(user => {
-        if(!isCurrentUser(user)) {
-          setUserList([...userList, user])
+        if (user.userId !== uid) {
+          foundUsers = [...foundUsers, user];
         }
       });
+      setUserList(foundUsers);
     });
-  }, [])
+  }, [uid])
 
   return (
     <View

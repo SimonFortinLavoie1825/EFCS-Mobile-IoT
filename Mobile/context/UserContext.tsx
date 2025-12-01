@@ -8,6 +8,7 @@ export const UserContext = createContext<UserContextType | null>(null);
 export const defaultAvatar = "https://static.vecteezy.com/system/resources/thumbnails/009/292/244/small_2x/default-avatar-icon-of-social-media-user-vector.jpg"
 
 export function UserContextProvider({ children } : { children: React.ReactNode }) {
+    //TODO, switch à un User à la place de plusieurs affaires
     const [uid, setUid] = useState<string>("")
     const [name, setName] = useState<string>("")
     const [lastName, setLastName] = useState<string>("")
@@ -20,13 +21,14 @@ export function UserContextProvider({ children } : { children: React.ReactNode }
         }
     }, [profileImage])
 
-    async function getUserCreds(newUid: string) {
+    async function setupUserCreds(newUid: string) {
+        console.log("getting user creds")
         await getDoc(doc(db, "users", newUid)).then((userCreds) => {
             setName(userCreds.get("name"))
             setLastName(userCreds.get("lastName"))
         })
 
-        if (profileImage === "")
+        while (profileImage === "")
         {
             await AsyncStorage.getItem("avatar-"+newUid).then((avatar) => {
                 if (avatar === null) {
@@ -42,9 +44,16 @@ export function UserContextProvider({ children } : { children: React.ReactNode }
         }
     }
 
+    function resetUser() {
+        console.log("resetting");
+        setUid("");
+        setName("");
+        setLastName("");
+        setProfileImage("");
+    }
+
     async function getAllUsers() : Promise<User[]> {
         const result = await getDocs(collection(db, "users"));
-
 
         const users: User[] = [];
         result.forEach((doc) => {
@@ -55,16 +64,12 @@ export function UserContextProvider({ children } : { children: React.ReactNode }
             })
         })
 
-        console.log(users)
+        //console.log(users)
         return users;
     }
 
-    function isCurrentUser(user: User) : boolean {
-        return user.userId === uid;
-    }
-
     return (
-        <UserContext.Provider value={{name, lastName, profileImage, setProfileImage, getUserCreds, getAllUsers, isCurrentUser}}>
+        <UserContext.Provider value={{uid, name, lastName, profileImage, setProfileImage, getUserCreds: setupUserCreds, getAllUsers, resetUser}}>
             {children}
         </UserContext.Provider>
     )

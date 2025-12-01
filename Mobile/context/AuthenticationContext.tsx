@@ -11,7 +11,7 @@ import { defaultAvatar } from "./UserContext";
 export const AuthenticationContext = createContext<AuthenticationContextType | null>(null);
 
 export function AuthenticationContextProvider({ children } : { children: React.ReactNode }) {
-    const {getUserCreds} = useUserContext()
+    const {getUserCreds, resetUser} = useUserContext()
     const [isAuthenticated, setIsAuthenticated] = useState<boolean | undefined>(undefined)
     const segments = useSegments();
 
@@ -68,6 +68,7 @@ export function AuthenticationContextProvider({ children } : { children: React.R
     
     const logout = async () => {
         await signOut(auth).then(() => {
+            resetUser();
             goToIndex();
         }).catch(error => {
             console.error(error);
