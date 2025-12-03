@@ -42,6 +42,7 @@ void loop() {
   screenManager.draw();
 
   //Si le status du SelectedChallenge n'est plus pending, ça veut dire que le challenge à été soit réussi, soit échoué. Dans tous les cas, on update les points dans le FirestoreManager
-  if (context.selectedChallenge.status != "pending")
+  if (context.selectedChallenge.status != "pending") {
     firestoreManager.saveChallenge(context.selectedChallenge);
+  }
 }
