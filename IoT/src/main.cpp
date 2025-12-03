@@ -1,52 +1,47 @@
 #include "LEDManager.h"
 #include "CodeManager.h"
-#include "FirestoreDataManager.h"
-#include "Inputs/ButtonManager.h"
+#include "FirestoreManager.h"
+#include "Inputs/Inputs.h"
+#include "Context.h"
+#include "Screens/ScreenManager.h"
 
 FirestoreDataManager firestoreManager = FirestoreDataManager();
-CodeManager gameManager = CodeManager();
-ButtonManager inputManager = ButtonManager();
+
+Inputs inputs = Inputs();
+Context context = Context();
+
+ScreenManager screenManager = ScreenManager();
 
 void setup() {
   Serial.begin(9600); 
 
   //Pin setup time
-  pinMode(WHITE_LED, OUTPUT);
-  pinMode(GREEN_LED, OUTPUT);
-  pinMode(BLUE_LED, OUTPUT);
+  pinMode(FIRST_LED, OUTPUT);
+  pinMode(SECOND_LED, OUTPUT);
+  pinMode(THIRD_LED, OUTPUT);
 
-  pinMode(WHITE_BTN, INPUT_PULLUP);
-  pinMode(GREEN_BTN, INPUT_PULLUP);
-  pinMode(BLUE_BTN, INPUT_PULLUP);
+  pinMode(FIRST_BTN, INPUT_PULLUP);
+  pinMode(SECOND_BTN, INPUT_PULLUP);
+  pinMode(THIRD_BTN, INPUT_PULLUP);
 
   //Start Mr. Firestore
   firestoreManager.startUp();
+
+  //Ramasse tout les FirestoreChallenge et les mets dans Context.allChallenges
+  context.allChallenges = firestoreManager.getChallenges();
+
+  //Démarre le screenManager
+  screenManager.init(context);
 }
 
 void loop() {
-  //Vérifie si le jeux joue, si non, il le démarre
-  if (!gameManager.isGameRunning()) {
-    gameManager.startCode();
-  }
+  // Enregistre les inputs
+  inputs.manageInputs();
 
-  //Affiche la lumière du code du jeu
-  gameManager.showCodeLight();
+  screenManager.update(inputs);
+  screenManager.draw();
 
-  //Tant que le code n'a pas été fini ou que le jeu est encore entrain de rouler
-  while (!gameManager.isCodeEnded() && gameManager.isGameRunning()) {
-    do
-    {
-      //Regarde quel bouton est cliqué tant qu'il n'y a rien de pressé
-      inputManager.manageInputs();
-    } while (inputManager.currentColorPressed() == NO_COLOR);
-
-      //Vérifie cet input
-      gameManager.verifyInput(inputManager.currentColorPressed());
-  }
-
-  //Si le code est finit (obligatoire vu que la while peut se terminer dans le cas où le jeu finit)
-  if (gameManager.isCodeEnded()) {
-    //Fait un nouveau code
-    gameManager.resetSequence();
-  }
+  //Si le status du SelectedChallenge n'est plus pending, ça veut dire que le challenge à été soit réussi, soit échoué. Dans tous les cas, on update les points dans le FirestoreManager
+  if (context.selectedChallenge.status != "pending")
+    firestoreManager.saveChallenge(context.selectedChallenge);
 }

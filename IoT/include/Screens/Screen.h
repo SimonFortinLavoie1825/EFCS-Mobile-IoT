@@ -1,8 +1,11 @@
+#pragma once
+
 #include <Arduino.h>
 #include "Inputs/Inputs.h"
 #include "Configuration.h"
 #include "DHT.h"
 #include <DFRobot_GDL.h>
+#include <Context.h>
 
 enum ScreenType {
     CHALLENGE,
@@ -13,12 +16,16 @@ enum ScreenType {
 
 class Screen {
     public:
-        Screen(ScreenType type);
+        Screen(ScreenType type, ScreenType nextScreen,Context& context);
         virtual ~Screen();
         virtual void draw() = 0;
         virtual void update(Inputs& inputs) = 0;
 
         virtual void setText(const String* newText, int newTextCount);
+
+        ScreenType getCurrentScreen();
+
+        virtual void switchScreen();
 
     protected:
         DHT* dht;
@@ -26,7 +33,9 @@ class Screen {
 
         ScreenType type;
         ScreenType currentScreen;
-        String previousScreenInfo;
+        ScreenType nextScreen;
+
+        Context context;
 
         String* screenText;
         int textCount;

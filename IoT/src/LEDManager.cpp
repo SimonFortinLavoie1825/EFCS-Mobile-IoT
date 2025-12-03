@@ -2,37 +2,37 @@
 
 void flashAllLeds(int times) {
     for (int i = 0; i < times; i++) {
-        digitalWrite(WHITE_LED, HIGH);
-        digitalWrite(GREEN_LED, HIGH);
-        digitalWrite(BLUE_LED, HIGH);
+        digitalWrite(FIRST_LED, HIGH);
+        digitalWrite(SECOND_LED, HIGH);
+        digitalWrite(THIRD_LED, HIGH);
 
-        delay(LED_DELAY_TIME);
+        delay(BASE_LED_DELAY_TIME);
 
-        digitalWrite(WHITE_LED, LOW);
-        digitalWrite(GREEN_LED, LOW);
-        digitalWrite(BLUE_LED, LOW);
+        digitalWrite(FIRST_LED, LOW);
+        digitalWrite(SECOND_LED, LOW);
+        digitalWrite(THIRD_LED, LOW);
 
-        delay(LED_DELAY_TIME);
+        delay(BASE_LED_DELAY_TIME);
     }
 }
 
 void flashAllLeds(int times, int ledDelay) {
     for (int i = 0; i < times; i++) {
-        digitalWrite(WHITE_LED, HIGH);
+        digitalWrite(FIRST_LED, HIGH);
         delay(ledDelay);
-        digitalWrite(GREEN_LED, HIGH);
+        digitalWrite(SECOND_LED, HIGH);
         delay(ledDelay);
-        digitalWrite(BLUE_LED, HIGH);
+        digitalWrite(THIRD_LED, HIGH);
 
-        delay(LED_DELAY_TIME);
+        delay(BASE_LED_DELAY_TIME);
 
-        digitalWrite(WHITE_LED, LOW);
+        digitalWrite(FIRST_LED, LOW);
         delay(ledDelay);
-        digitalWrite(GREEN_LED, LOW);
+        digitalWrite(SECOND_LED, LOW);
         delay(ledDelay);
-        digitalWrite(BLUE_LED, LOW);
+        digitalWrite(THIRD_LED, LOW);
 
-        delay(LED_DELAY_TIME);
+        delay(BASE_LED_DELAY_TIME);
     }
 }
 

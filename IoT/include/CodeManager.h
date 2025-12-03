@@ -4,29 +4,22 @@
 class CodeManager
 {
     public:
-        CodeManager();
+        CodeManager(const FirestoreChallenge challenge);
         ~CodeManager();
 
-        void startCode(FirestoreChallenge challenge);
-        void increaseCodeLength();
+        void startCode();
         void showCodeLight(int delayTime);
-        void endGame();
-        void resetSequence();
 
-        void verifyInput(int input);
+        bool verifyInput(int input);
+        void switchCodeIndex();
 
-        bool isGameRunning();
-        int getCurrentCodeLength();
-        bool isCodeEnded();
-
+        bool hasCodeEnded();
+        int getCodeLength();
     private:
-        bool gameRunning;
         bool codeEnded;
 
         FirestoreChallenge currentChallenge;
         int* code;
-        int currentCodeLength;
-        int currentCodeIndex;
-
-        int highScore;
+        int codeLength;
+        int codeIndex;
 };

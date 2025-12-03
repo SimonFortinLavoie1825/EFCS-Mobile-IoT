@@ -1,13 +1,28 @@
-struct Inputs
-{
-    Inputs();
-    void reset();
-    
-    bool firstBtn;
-    bool secondBtn;
-    bool thirdBtn;
+#pragma once
 
-    int xJoy;
-    int yJoy;
-    bool btnJoy;
+#include "Configuration.h"
+#include <Arduino.h>
+
+class Inputs
+{
+    public:
+        Inputs();
+        
+        void reset();
+
+        void manageInputs();
+
+        bool buttonsPressed();
+        int currentButtonPressed();
+        
+        bool firstBtn;
+        bool secondBtn;
+        bool thirdBtn;
+        int xJoy;
+        int yJoy;
+        bool btnJoy;
+
+    private:
+        bool manageButtonInput(int btnPin);
+        int manageJoystickInput(int joyPin);
 };

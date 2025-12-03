@@ -1,8 +1,7 @@
-#include "FirestoreDataManager.h"
+#include "FirestoreManager.h"
 #include "addons/TokenHelper.h"
 #include "addons/RTDBHelper.h"
 #include <WiFi.h>
-#include <FirestoreChallenges.h>
 
 const char WIFI_SSID[] = "Simon";
 const char WIFI_PASSWORD[] = "simon279";
@@ -18,6 +17,7 @@ FirestoreDataManager::FirestoreDataManager() {
     
 }
 
+// Démarre la connextion Wifi et la connextion Firestore
 void FirestoreDataManager::startUp() {
     //Connexion au wifi
     Serial.println("Trying connexion...");
@@ -47,14 +47,18 @@ void FirestoreDataManager::startUp() {
     Firebase.reconnectWiFi(true);
 }
 
-void FirestoreDataManager::saveScore(int score) {
-    Serial.println("Saving score");
-    int time = millis();
-    char documentPath[50];
-    sprintf(documentPath, "GameData/%lu", time);
+// Enregistre le score (TODO, Changer pour update le challenge joué)
+void FirestoreDataManager::saveChallenge(FirestoreChallenge challenge) {
+    challengeManager.updatePoints(challenge.index, challenge.pointsObtained);
+}
 
-    FirebaseJson content;
-    content.set("fields/score/integerValue", score);
-    content.set("fields/timeStamp/stringValue", String(time));
-    Firebase.Firestore.createDocument(&fbdo, PROJECT_ID, "", documentPath, content.raw());
+// Retourne tous les challenges trouvés dans le firestore dans un tableau de FirestoreChallenges
+FirestoreChallenge* FirestoreDataManager::getChallenges() {
+    FirestoreChallenge* challengeArray = new FirestoreChallenge[challengeManager.getCount()];
+
+    for (int i = 0; i < challengeManager.getCount(); i++) {
+        challengeArray[i] = challengeManager.getChallenge(i);
+    }
+
+    return challengeArray;
 }
