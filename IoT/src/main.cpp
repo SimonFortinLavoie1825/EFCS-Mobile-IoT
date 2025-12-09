@@ -32,8 +32,6 @@ void loop() {
   screenManager.update(inputs);
   screenManager.draw();
 
-  delay(1000);
-
   while (!inputs.hasJoystickInputs() && !inputs.buttonsPressed())
   {
     inputs.manageInputs();

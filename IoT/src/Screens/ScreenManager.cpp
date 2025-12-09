@@ -39,12 +39,7 @@ void ScreenManager::init() {
 
 // Affiche le texte sur l'écran actuel
 void ScreenManager::draw() {
-    dfScreen->fillScreen(COLOR_RGB565_BLUE);
-    dfScreen->setTextColor(COLOR_RGB565_YELLOW);
-    dfScreen->setCursor(100, 10);
-    dfScreen->println("Test");
-
-    //screen->draw();
+    screen->draw();
 }
 
 // Update l'écran actuel et s'assure que le bon écran est affiché
