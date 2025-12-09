@@ -13,6 +13,8 @@ class Inputs
         void manageInputs();
 
         bool buttonsPressed();
+        bool hasJoystickInputs();
+
         int currentButtonPressed();
         
         bool firstBtn;

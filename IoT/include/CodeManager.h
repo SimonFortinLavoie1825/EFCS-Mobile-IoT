@@ -4,7 +4,9 @@
 class CodeManager
 {
     public:
-        CodeManager(const FirestoreChallenge challenge);
+        static const int CODE_PINS[3];
+
+        CodeManager(const String sequence);
         ~CodeManager();
 
         void startCode();
@@ -18,7 +20,7 @@ class CodeManager
     private:
         bool codeEnded;
 
-        FirestoreChallenge currentChallenge;
+        String currentSequence;
         int* code;
         int codeLength;
         int codeIndex;

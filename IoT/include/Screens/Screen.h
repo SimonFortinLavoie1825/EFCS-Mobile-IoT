@@ -16,8 +16,10 @@ enum ScreenType {
 
 class Screen {
     public:
-        Screen(ScreenType type, ScreenType nextScreen,Context& context);
+        Screen(ScreenType type, ScreenType nextScreen,Context& context, DFRobot_ST7789_240x320_HW_SPI* screen);
         virtual ~Screen();
+
+        void init();
         virtual void draw() = 0;
         virtual void update(Inputs& inputs) = 0;
 
@@ -28,14 +30,13 @@ class Screen {
         virtual void switchScreen();
 
     protected:
-        DHT* dht;
         DFRobot_ST7789_240x320_HW_SPI* screen;
 
         ScreenType type;
         ScreenType currentScreen;
         ScreenType nextScreen;
 
-        Context context;
+        Context* context;
 
         String* screenText;
         int textCount;

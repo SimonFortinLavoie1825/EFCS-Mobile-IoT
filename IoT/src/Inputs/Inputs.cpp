@@ -24,19 +24,27 @@ void Inputs::manageInputs() {
 
 // Retourne True si le bouton associé à la pin de l'argument "btnPin" est pressé, False si il n'est pas pressé
 bool Inputs::manageButtonInput(int btnPin) {
-    if (digitalRead(btnPin) == LOW) {
-        delay(50); 
-        if (digitalRead(btnPin) == LOW) {
-            return true;
-        }
+    int val = digitalRead(btnPin);
+
+    bool buttonPressed = false;
+
+    if (val == LOW && !buttonPressed) {
+        buttonPressed = true;
+    } else if (val == HIGH) {
+        buttonPressed = false;
     }
 
-    return false;
+    return buttonPressed;
 }
 
 // Retourne True si au moins un bouton est pressé, False si aucun l'est
 bool Inputs::buttonsPressed() {
     return firstBtn || secondBtn || thirdBtn;
+}
+
+// Retourne True si au moins un bouton est pressé, False si aucun l'est
+bool Inputs::hasJoystickInputs() {
+    return btnJoy || xJoy != 0 || yJoy != 0;
 }
 
 // Retourne 1 si premier bouton est pressé, 2 si deuxième, 3 si troisième, 0 si aucun ou plusieurs pressés en même temps

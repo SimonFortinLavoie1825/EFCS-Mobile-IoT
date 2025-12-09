@@ -6,7 +6,7 @@ class EndScreen:
     public Screen
 {
     public:
-        EndScreen(ScreenType type, ScreenType nextScreen, Context& context);
+        EndScreen(ScreenType type, ScreenType nextScreen, Context& context, DFRobot_ST7789_240x320_HW_SPI* screen);
         ~EndScreen();
 
         virtual void draw() override;

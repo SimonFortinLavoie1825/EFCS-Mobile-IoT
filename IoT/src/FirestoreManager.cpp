@@ -2,19 +2,14 @@
 #include "addons/TokenHelper.h"
 #include "addons/RTDBHelper.h"
 #include <WiFi.h>
-
-const char WIFI_SSID[] = "Simon";
-const char WIFI_PASSWORD[] = "simon279";
-const char API_KEY[] = "AIzaSyA-gfSpCx87AzGs7jzXwSyKtrcllDeMq5g";
-const char PROJECT_ID[] = "tp2-obj-connectes";
-
-FirebaseAuth auth;
-FirebaseConfig config;
-FirebaseData fbdo;
-FirestoreChallenges challengeManager(&fbdo, PROJECT_ID);
+#include "Configuration.h"
 
 FirestoreDataManager::FirestoreDataManager() {
-    
+    challengeManager = new FirestoreChallenges(&fbdo, PROJECT_ID);
+}
+
+FirestoreDataManager::~FirestoreDataManager() {
+    delete challengeManager;
 }
 
 // Démarre la connextion Wifi et la connextion Firestore
@@ -47,18 +42,29 @@ void FirestoreDataManager::startUp() {
     Firebase.reconnectWiFi(true);
 }
 
-// Enregistre le score (TODO, Changer pour update le challenge joué)
+// Enregistre le score du challenge donné par l'argument Challenge
 void FirestoreDataManager::saveChallenge(FirestoreChallenge challenge) {
-    challengeManager.updatePoints(challenge.index, challenge.pointsObtained);
+    challengeManager->updatePoints(challenge.index, challenge.pointsObtained);
+}
+
+bool FirestoreDataManager::loadChallenges(String playerId) {
+    return challengeManager->loadChallenges(playerId);
 }
 
 // Retourne tous les challenges trouvés dans le firestore dans un tableau de FirestoreChallenges
 FirestoreChallenge* FirestoreDataManager::getChallenges() {
-    FirestoreChallenge* challengeArray = new FirestoreChallenge[challengeManager.getCount()];
+    FirestoreChallenge* challengeArray = new FirestoreChallenge[challengeManager->getCount()];
 
-    for (int i = 0; i < challengeManager.getCount(); i++) {
-        challengeArray[i] = challengeManager.getChallenge(i);
+    for (int i = 0; i < challengeManager->getCount(); i++) {
+        challengeArray[i] = challengeManager->getChallenge(i);
     }
 
     return challengeArray;
+}
+
+// Retourne le nombre de challenges dans le firestore
+int FirestoreDataManager::getChallengeCount() {
+    Serial.print("getchallengeCount: ");
+    Serial.println(challengeManager->getCount());
+    return challengeManager->getCount();
 }

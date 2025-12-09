@@ -2,11 +2,15 @@
 #include "Configuration.h"
 #include "LEDManager.h"
 
-CodeManager::CodeManager(const FirestoreChallenge challenge) 
+const int CodeManager::CODE_PINS[3] = {FIRST_LED, SECOND_LED, THIRD_LED};
+
+CodeManager::CodeManager(const String sequence) 
     : codeIndex(0)
     , codeEnded(false)
-    , currentChallenge(challenge)
-{}
+    , currentSequence(sequence)
+{
+    codeLength = sequence.length();
+}
 
 CodeManager::~CodeManager() 
 {
@@ -18,15 +22,16 @@ CodeManager::~CodeManager()
 void CodeManager::startCode() {
     Serial.println("Starting game");
 
-    //Enregistrement de la longueur code et du code sous forme de tableau de int
-    codeLength = codeLength;
+    code = new int[codeLength];
 
+    //Enregistrement de la longueur code et du code sous forme de tableau de int
     for (int i = 0; i < codeLength; i++) {
-        char sequenceIndex = currentChallenge.sequence.charAt(i);
+        char sequenceIndex = currentSequence[i];
 
         //Soustraire par '0' pour avoir la valeur numérique du caractère
         int numberSequenceIndex = sequenceIndex - '0';
         code[i] = numberSequenceIndex;
+        Serial.println(numberSequenceIndex);
     }
 
     //Fait allumer les leds
@@ -38,7 +43,7 @@ void CodeManager::startCode() {
 void CodeManager::showCodeLight(int delayTime) {
     //Loop pour chaque caractères de la s équence et allume la lumière
     for (int i = 0; i < codeLength; i++) {
-        flashSingleLed(code[i], delayTime);
+        flashSingleLed(CODE_PINS[code[i]-1], delayTime);
     }
 }
 

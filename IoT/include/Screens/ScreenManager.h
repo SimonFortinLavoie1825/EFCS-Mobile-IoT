@@ -9,6 +9,7 @@
 #include "Screens/DifficultyScreen.h"
 #include "Screens/GameScreen.h"
 #include "Screens/EndScreen.h"
+#include <FirestoreManager.h>
 
 class ScreenManager {
     public:
@@ -18,13 +19,17 @@ class ScreenManager {
         ScreenManager();
         ~ScreenManager();
 
-        void init(Context& context);
+        void init();
         void draw();
         void update(Inputs& inputs);
 
-        void changeScreen(ScreenType newScreen);
+        void changeScreen(ScreenType newScreenType);
     private:
         ScreenType currentlyShownScreen;
         Screen* screen;
-        Context context;
+        Context* context;
+        
+        FirestoreDataManager firestoreManager;
+
+        DFRobot_ST7789_240x320_HW_SPI* dfScreen;
 };
