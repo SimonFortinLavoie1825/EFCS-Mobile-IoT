@@ -1,82 +1,138 @@
-import { useUserContext } from "@/hooks/useUser";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { router, useSegments } from "expo-router";
-import { createUserWithEmailAndPassword, onAuthStateChanged, signInWithEmailAndPassword, signOut } from "firebase/auth";
-import { doc, setDoc } from "firebase/firestore";
-import { createContext, useEffect, useState, } from "react";
+import { type User } from "@/types/User";
+import {
+  createUserWithEmailAndPassword,
+  EmailAuthProvider,
+  getAuth,
+  onAuthStateChanged,
+  reauthenticateWithCredential,
+  signInWithEmailAndPassword,
+  signOut,
+  updatePassword,
+} from "firebase/auth";
+import { doc, setDoc, getDoc } from "firebase/firestore";
+import { createContext, useEffect, useState } from "react";
 import { auth, db } from "../firebaseConfig";
 import { AuthenticationContextType } from "../types/Authentication";
-import { defaultAvatar } from "./UserContext";
+import { Alert } from "react-native";
 
-export const AuthenticationContext = createContext<AuthenticationContextType | null>(null);
+export const AuthenticationContext =
+  createContext<AuthenticationContextType | null>(null);
 
-export function AuthenticationContextProvider({ children } : { children: React.ReactNode }) {
-    const {getUserCreds} = useUserContext()
-    const [isAuthenticated, setIsAuthenticated] = useState<boolean | undefined>(undefined)
-    const segments = useSegments();
+export function AuthenticationContextProvider({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean | undefined>(
+    undefined
+  );
+  const [user, setUser] = useState<User | undefined>(undefined);
 
-    const goToIndex = () => {
-        if (segments.length > 0) {
-            router.dismissAll()
-        }
+  useEffect(() => {
+    const unsub = onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        setIsAuthenticated(true);
+        const userFireStore = await getDoc(
+          doc(db, "users", auth.currentUser!.uid)
+        );
+        setUser(userFireStore.data() as User);
+      } else {
+        setIsAuthenticated(false);
+        setUser(undefined);
+      }
+    });
+    return unsub;
+  }, []);
+
+  async function register(
+    username: string,
+    email: string,
+    password: string,
+    confirmPassword: string,
+    firstName: string,
+    lastName: string
+  ): Promise<void> {
+    try {
+      if(password !== confirmPassword)
+        throw new Error("Les mots de passes ne se correspondent pas");
+      const cred = await createUserWithEmailAndPassword(auth, email, password);
+      const newUser: User = {
+        userId: cred.user.uid,
+        username,
+        firstName,
+        lastName,
+      };
+      await setDoc(doc(db, "users", cred.user.uid), newUser);
+
+      setUser(newUser);
+    } catch (error: any) {
+      if (error.code === "auth/email-already-in-use") {
+        throw new Error("Le courriel existe déjà");
+      } else if (error.code === "auth/invalid-email") {
+        throw new Error("Le courriel est invalide");
+      }
     }
-    
-    useEffect(() => {
-        const unsub = onAuthStateChanged(auth, (user) => {
-            if (user) {
-                getUserCreds(user.uid);
-                setIsAuthenticated(true);
-            } else {
-                setIsAuthenticated(false);
-            }
-            });
-            
-            return unsub;
-        }, []);
-        
-    const register = async (email:string, password:string, name: string, lastName: string) => {
-       await createUserWithEmailAndPassword(auth, email, password).then((userCreds) => {
-            setDoc(doc(db, "users", userCreds.user.uid), {
-                name: name,
-                lastName: lastName
-            });
-            AsyncStorage.setItem("avatar-"+userCreds.user.uid, defaultAvatar);
-            goToIndex();
-       }).catch(error => {
-            if (error.code === 'auth/email-already-in-use') {
-                throw new Error('Le courriel existe déjà');
-            } else if (error.code === 'auth/invalid-email') {
-                throw new Error('Le courriel est invalide');
-            }
+  }
 
-            console.error(error);
-        });
+  async function login(email: string, password: string): Promise<void> {
+    try {
+      const credentials = await signInWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
+      const user = await getDoc(doc(db, "users", credentials.user.uid));
+      setUser(user.data() as User);
+    } catch (error: any) {
+      if (error.code === "auth/invalid-email") {
+        throw new Error("Le courriel est invalide");
+      } else if (error.code === "auth/wrong-password") {
+        throw new Error("Le mot de passe est invalide");
+      }
     }
+  }
+  async function logout(): Promise<void> {
+    try {
+      await signOut(auth);
+    } catch (error) {
+      console.log("Erreur lors de la déconnexion:", error);
+    }
+  }
 
-    const login = async (email: string, password: string) => {
-        await signInWithEmailAndPassword(auth, email, password).then(() => {
-            router.back();
-        }).catch(error => {
-            if (error.code === 'auth/invalid-email') {
-                throw new Error('Le courriel est invalide');
-            } else if (error.code === 'auth/wrong-password') {
-                throw new Error('Le mot de passe est invalide');
-            }
-            console.error(error);
-        })
-    }
-    
-    const logout = async () => {
-        await signOut(auth).then(() => {
-            goToIndex();
-        }).catch(error => {
-            console.error(error);
-        })
-    }
+  async function modifyPassword(
+    oldPassword: string,
+    newPassword: string
+  ): Promise<void> {
+    const auth = getAuth();
+    const user = auth.currentUser;
 
-    return ( 
-        <AuthenticationContext.Provider value={{ isAuthenticated, register, login, logout }}>
-            {children}
-        </AuthenticationContext.Provider>
-    )
+    if (user !== undefined && user !== null && user.email !== null) {
+      const credential = EmailAuthProvider.credential(user.email, oldPassword);
+      try {
+        await reauthenticateWithCredential(user, credential);
+
+        await updatePassword(user, newPassword);
+
+        Alert.alert("Mot de passe changé avec succès");
+      } catch (error) {
+        console.log(error);
+        Alert.alert("Erreur lors du changement du mot de passe.");
+      }
+    }
+  }
+
+  return (
+    <AuthenticationContext.Provider
+      value={{
+        isAuthenticated,
+        user,
+        register,
+        login,
+        logout,
+        modifyPassword
+      }}
+    >
+      {children}
+    </AuthenticationContext.Provider>
+  );
 }

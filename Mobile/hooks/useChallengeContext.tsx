@@ -1,7 +1,7 @@
 import { ChallengeContext } from "../context/ChallengeContext";
 import { useContext } from "react";
 
-export function useAuth() {
+export function useChallenge() {
     const context = useContext(ChallengeContext);
 
     if (!context)

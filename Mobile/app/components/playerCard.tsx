@@ -1,43 +1,38 @@
 import { Text, View, StyleSheet } from "react-native";
-import EnableableButton from "./enableableButton";
 import { useAuth } from "@/hooks/useAuth";
+import CustomButton from "@/app/components/CustomButton";
+import { router } from "expo-router";
 
 type PlayerCardProps = {
-    name: string
-}
+  name: string;
+  opponentId: string;
+};
 
-export default function PlayerCard({name} : PlayerCardProps) {
-  const styles = StyleSheet.create({
-      title: {
-        fontSize: 36,
-        margin: 30
-      },
-      buttonText: {
-        color: "white",
-        fontSize: 24,
-      },
-      image: {
-         width: 125, 
-         height: 125,
-         margin: 5 
-      }
-    })
-
-  const {isAuthenticated} = useAuth();
-
+export default function PlayerCard(
+  { name, opponentId }: PlayerCardProps
+) {
+  const { isAuthenticated } = useAuth();
   return (
-    <View
-      style={{
-        flex: 1,
-        justifyContent: "center",
-        alignItems: "center",
-        flexDirection: "row"
-      }}
-    >
-        <Text style={styles.title}>{name}</Text>
-        <EnableableButton isEnabled={isAuthenticated} onPress={() => {}}> 
-          <Text style={styles.buttonText}> Défier </Text>
-        </EnableableButton>
+    <View style={styles.container}>
+      <Text style={styles.title}>{name}</Text>
+      <CustomButton
+        title="Défier"
+        isDisabled={!isAuthenticated}
+        onPressAction={() => {
+          router.push(`/opponent/${opponentId}`);
+        }}
+      />
     </View>
   );
 }
+const styles = StyleSheet.create({
+  container: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#ffffffff",
+  },
+  title: {
+    fontSize: 24,
+    margin: 10,
+  },
+});

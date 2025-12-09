@@ -3,69 +3,87 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { collection, doc, getDoc, getDocs } from "firebase/firestore";
 import { createContext, useEffect, useState } from "react";
 import { db } from "../firebaseConfig";
+import { useAuth } from "@/hooks/useAuth";
 
 export const UserContext = createContext<UserContextType | null>(null);
-export const defaultAvatar = "https://static.vecteezy.com/system/resources/thumbnails/009/292/244/small_2x/default-avatar-icon-of-social-media-user-vector.jpg"
 
-export function UserContextProvider({ children } : { children: React.ReactNode }) {
-    const [uid, setUid] = useState<string>("")
-    const [name, setName] = useState<string>("")
-    const [lastName, setLastName] = useState<string>("")
-    const [profileImage, setProfileImage] = useState<string>("")
+export function UserContextProvider({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  const { user } = useAuth();
+  const [profileImage, setProfileImage] = useState<string>("");
 
-    useEffect(() => {
-        if (profileImage !== "")
-        {
-            AsyncStorage.setItem("avatar-"+uid, profileImage);
-        }
-    }, [profileImage])
+  useEffect(() => {
+    const fetchAvatar = async () => {
+      const value = await AsyncStorage.getItem(`avatarUri${user?.userId}`);
+      if (value !== null) {
+        setProfileImage(value);
+      }
+    };
 
-    async function getUserCreds(newUid: string) {
-        await getDoc(doc(db, "users", newUid)).then((userCreds) => {
-            setName(userCreds.get("name"))
-            setLastName(userCreds.get("lastName"))
-        })
+    fetchAvatar();
+  }, [user?.userId]);
 
-        if (profileImage === "")
-        {
-            await AsyncStorage.getItem("avatar-"+newUid).then((avatar) => {
-                if (avatar === null) {
-                    setProfileImage(defaultAvatar)
-                } else {
-                    setProfileImage(avatar)
-                }
-            })
-        }
+  useEffect(() => {
+    const saveAvatar = async () => {
+      if (profileImage !== undefined)
+        await AsyncStorage.setItem(`avatarUri${user?.userId}`, profileImage);
+    };
 
-        if (uid === "") {
-            setUid(newUid)
-        }
+    saveAvatar();
+  }, [profileImage, user?.userId]);
+
+  async function getAllUsers(): Promise<User[]> {
+    try
+    {
+      const result = await getDocs(collection(db, "users"));
+
+    const users: User[] = [];
+    result.forEach((docUser) => {
+      users.push({
+        userId: docUser.id,
+        username: docUser.data().username,
+        firstName: docUser.data().firstName,
+        lastName: docUser.data().lastName,
+      });
+    });
+    return users;
     }
-
-    async function getAllUsers() : Promise<User[]> {
-        const result = await getDocs(collection(db, "users"));
-
-
-        const users: User[] = [];
-        result.forEach((doc) => {
-            users.push({
-                "userId": doc.id,
-                "name": doc.data().name,
-                "lastName": doc.data().lastName
-            })
-        })
-
-        console.log(users)
-        return users;
+    catch (error: any) 
+    {
+      throw new Error("Une erreur est survenue lors de la récupération des utilisateurs.");
     }
+  }
 
-    function isCurrentUser(user: User) : boolean {
-        return user.userId === uid;
+  async function getUser(id: string): Promise<User | null> {
+    try {
+      const userDoc = doc(db, "users", id);
+      const result = await getDoc(userDoc);
+
+      if (!result.exists()) return null;
+
+      const data = result.data();
+      return {
+        userId: result.id,
+        username: data.username,
+        firstName: data.firstName,
+        lastName: data.lastName,
+      };
+    } catch (error: any) {
+      throw new Error("Une erreur est survenue lors de la récupération de l'utilisateurs.");
     }
+  }
 
-    return (
-        <UserContext.Provider value={{name, lastName, profileImage, setProfileImage, getUserCreds, getAllUsers, isCurrentUser}}>
-            {children}
-        </UserContext.Provider>
-    )
+  async function changeProfileImage(newAvatar: string): Promise<void> {
+    setProfileImage(newAvatar);
+  }
+  return (
+    <UserContext.Provider
+      value={{ profileImage, changeProfileImage, getAllUsers, getUser }}
+    >
+      {children}
+    </UserContext.Provider>
+  );
 }

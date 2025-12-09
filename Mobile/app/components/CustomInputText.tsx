@@ -4,16 +4,19 @@ type CustomInputTextProps = {
   value: string;
   onChangeText: (text: string) => void;
   placeholder: string;
+  isPassword: boolean;
 }
 
 export default function CustomInputText({
   value,
   onChangeText,
   placeholder,
+  isPassword
 }: CustomInputTextProps) {
   return (
       <TextInput
         style={styles.textInputField}
+        secureTextEntry={isPassword}
         placeholder={placeholder}
         placeholderTextColor="grey"
         value={value}

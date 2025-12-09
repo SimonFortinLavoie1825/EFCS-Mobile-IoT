@@ -18,7 +18,10 @@ export default function AvatarMenu() {
   const { logout } = useAuth();
   const { profileImage } = useUserContext();
   const menuItems = [
-    { label: "Home", href: "/" },
+    { label: "Défis reçus", href: "/challengeReceived" },
+    { label: "Défis complétés", href: "/challengeCompleted" },
+    { label: "Classement des meilleurs", href: "/leaderboard" },
+    { label: "Profil", href: "/profil" },
   ];
   function logoutMenu(): void {
     setOpen(false);
@@ -35,10 +38,6 @@ export default function AvatarMenu() {
           style={styles.avatarImage}
         />
       </TouchableOpacity>
-      {/* Aidé de ChatGPT
-        Prompt: Comment je peux faire apparaitre une liste drop-down
-        après avoir cliqué sur un bouton et mettre la liste au dessus
-        du header pour un meilleur affichage */}
       <Modal
         visible={open}
         transparent={true}

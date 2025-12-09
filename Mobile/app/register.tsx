@@ -1,111 +1,178 @@
+import CustomButton from "@/app/components/CustomButton";
+import CustomInputText from "@/app/components/CustomInputText";
 import { useAuth } from "@/hooks/useAuth";
+import { useUserContext } from "@/hooks/useUser";
 import { useState } from "react";
-import { Alert, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
+import * as DocumentPicker from "expo-document-picker";
+import { StyleSheet, Text, View, Image } from "react-native";
 
 export default function Register() {
-  
-  const styles = StyleSheet.create({
-      title: {
-        fontSize: 30,
-        margin: 30
-      },
-      button: {
-          padding: 10,
-          marginVertical: 5,
-          marginHorizontal: 2,
-          backgroundColor: "dodgerblue",
-          borderRadius: 5
-      },
-      buttonText: {
-          color: "white"
-      },
-      input: {
-          width: "95%",
-          padding: 5,
-          paddingVertical: 10,
-          marginVertical: 5,
-          borderWidth: 2,
-          borderColor: "lightgray",
-          borderRadius: 7,
-          backgroundColor: "white"
-      },
-      disabledButton: {
-          backgroundColor: "dodgerblue",
-      },
-      enabledButton: {
-          backgroundColor: "gray",
-      },
-  })
-
-  const {register} = useAuth();
-
+  const { register } = useAuth();
+  const { changeProfileImage } = useUserContext();
+  const [avatar, setAvatar] = useState("");
+  const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [name, setName] = useState("");
   const [lastName, setLastName] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const canLogin = email !== "" && password !== "" && confirmPassword !== "" && name !== "" && lastName !== "";
+  const [errorMsg, setErrorMsg] = useState("");
 
-  async function registerCheck() {
+  async function handleSubmitUser(
+    username: string,
+    email: string,
+    password: string,
+    confirmPassword: string,
+    name: string,
+    lastName: string
+  ): Promise<void> {
     try {
-      if (password === confirmPassword) {
-        register(email,password, name, lastName)
-      } else {
-        throw new Error("Les mots de passes ne correspondent pas");
-      }
-    } catch(error) {
-      if (error instanceof Error) {
-        Alert.alert(error.message);
-        setPassword("");
-        setConfirmPassword("");
-      }
+      await register(
+        username,
+        email,
+        password,
+        confirmPassword,
+        name,
+        lastName
+      );
+
+      changeProfileImage(avatar);
+      setEmail("");
+      setName("");
+      setLastName("");
+      setPassword("");
+      setConfirmPassword("");
+    } catch (error: any) {
+      setErrorMsg(error.message);
     }
   }
 
+  async function loadFile(): Promise<void> {
+    const result = await DocumentPicker.getDocumentAsync({
+      type: "image/*",
+      copyToCacheDirectory: true,
+      multiple: false,
+    });
+    if (result.canceled || !result.assets || result.assets.length === 0) {
+      return;
+    }
+    const uri = result.assets[0].uri;
+    setAvatar(uri);
+  }
+
   return (
-    <View
-      style={{
-        flex: 1,
-        justifyContent: "center",
-        alignItems: "center",
-        backgroundColor: "lightgray",
-      }}
-    > 
-      <Text style={styles.title}>S'inscrire</Text>
-      <TextInput
+    <View style={styles.container}>
+      <Text style={styles.title}>S&apos;inscrire</Text>
+      <Image source={{ uri: avatar?.toString() }} style={styles.image} />
+      <CustomButton
+        title="Charger un Avatar"
+        isDisabled={false}
+        onPressAction={() => loadFile()}
+      />
+      {/* Ici, ChatGpt m'a généré un composant conditionnel pour gérer les erreurs que me renvoit ma méthode "register" dans mon contexte d'authentification*/}
+      {/*Prompt: Comment je peux faire un composant conditionnel en react-native pour afficher mes erreurs d'une méthode d'inscription ? */}
+      {errorMsg !== "" && (
+        <Text style={styles.errorBox}>{errorMsg}</Text>
+      )}
+      <CustomInputText
+        placeholder="Nom d'usager"
+        isPassword={false}
+        value={username}
+        onChangeText={(text) => setUsername(text)}
+      />
+      <CustomInputText
+        placeholder="Courriel en ligne"
+        isPassword={false}
         value={email}
-        placeholder="Email"
-        placeholderTextColor='gray'
-        onChangeText={setEmail}
-        style={styles.input}/>
-      <TextInput
-        value={name}
-        placeholder="Prénom"
-        placeholderTextColor='gray'
-        onChangeText={setName}
-        style={styles.input}/>
-      <TextInput
-        value={lastName}
-        placeholder="Nom"
-        placeholderTextColor='gray'
-        onChangeText={setLastName}
-        style={styles.input}/>
-      <TextInput
-        value={password}
+        onChangeText={(text) => setEmail(text)}
+      />
+      <CustomInputText
         placeholder="Mot de passe"
-        placeholderTextColor='gray'
-        onChangeText={setPassword}
-        style={styles.input}/>
-      <TextInput
+        isPassword={true}
+        value={password}
+        onChangeText={(text) => setPassword(text)}
+      />
+      <CustomInputText
+        placeholder="Confirmer le mot de passe"
+        isPassword={true}
         value={confirmPassword}
-        placeholder="Confirmation du mot de passe"
-        placeholderTextColor='gray'
-        onChangeText={setConfirmPassword}
-        style={styles.input}/>
-      <TouchableOpacity style={[styles.button, canLogin ? styles.enabledButton : styles.disabledButton ]} onPress={canLogin ? registerCheck : undefined}>
-          <Text style={styles.buttonText}>Register</Text>
-      </TouchableOpacity>
+        onChangeText={(text) => setConfirmPassword(text)}
+      />
+      <CustomInputText
+        placeholder="Prénom"
+        isPassword={false}
+        value={name}
+        onChangeText={(text) => setName(text)}
+      />
+      <CustomInputText
+        placeholder="Nom de famille"
+        isPassword={false}
+        value={lastName}
+        onChangeText={(text) => setLastName(text)}
+      />
+      <CustomButton
+        title="S'inscrire"
+        isDisabled={false}
+        onPressAction={() =>
+          handleSubmitUser(
+            username,
+            email,
+            password,
+            confirmPassword,
+            name,
+            lastName
+          )
+        }
+      />
     </View>
   );
-
 }
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: "center",
+    backgroundColor: "#ffffffff",
+    gap: 12,
+    margin: 4,
+  },
+  image: {
+    width: 200,
+    height: 200,
+    borderRadius: 90,
+    marginVertical: 20,
+    alignSelf: "center",
+  },
+  title: {
+    fontSize: 30,
+  },
+  errorBox: {
+    color: "red",
+    alignSelf: "center",
+  },
+  button: {
+    padding: 10,
+    marginVertical: 5,
+    marginHorizontal: 2,
+    backgroundColor: "dodgerblue",
+    borderRadius: 5,
+  },
+  buttonText: {
+    color: "white",
+  },
+  input: {
+    width: "95%",
+    padding: 5,
+    paddingVertical: 10,
+    marginVertical: 5,
+    borderWidth: 2,
+    borderColor: "lightgray",
+    borderRadius: 7,
+    backgroundColor: "white",
+  },
+  disabledButton: {
+    backgroundColor: "dodgerblue",
+  },
+  enabledButton: {
+    backgroundColor: "gray",
+  },
+});

@@ -1,18 +1,18 @@
-import {
-  Text,
-  Image,
-  View,
-  StyleSheet,
-} from "react-native";
+import { Text, Image, View, StyleSheet } from "react-native";
 import { useAuth } from "@/hooks/useAuth";
 import { useUserContext } from "@/hooks/useUser";
 import * as DocumentPicker from "expo-document-picker";
 import CustomButton from "@/app/components/CustomButton";
+import { useChallenge } from "@/hooks/useChallengeContext";
+import CustomInputText from "../components/CustomInputText";
+import { useState } from "react";
 
 export default function Profil() {
-  const { logout } = useAuth();
-  const { name , lastName, profileImage, setProfileImage } = useUserContext();
-
+  const { logout, user, modifyPassword } = useAuth();
+  const { profileImage, changeProfileImage } = useUserContext();
+  const { currentUserPoints, currentUserPosition } = useChallenge();
+  const [currentPassword, setPassword] = useState<string>("");
+  const [newPassword, setNewPassword] = useState<string>("");
   async function loadFile(): Promise<void> {
     const result = await DocumentPicker.getDocumentAsync({
       type: "image/*",
@@ -23,8 +23,14 @@ export default function Profil() {
       return;
     }
     const uri = result.assets[0].uri;
-    setProfileImage(uri);
+    changeProfileImage(uri);
   }
+  function handleSubmitNewPassword(oldPassword: string, newPassword: string) {
+    modifyPassword(oldPassword, newPassword);
+    setNewPassword("");
+    setPassword("");
+  }
+
   return (
     <View style={styles.container}>
       <View style={styles.avatar}>
@@ -35,9 +41,33 @@ export default function Profil() {
           onPressAction={() => loadFile()}
         />
       </View>
+      <Text style={styles.title}>Bonjour, {user?.username}</Text>
       <Text style={styles.title}>
-        Bonjour, {name} {lastName}
+        Position Actuelle: {currentUserPosition}, {currentUserPoints} pts
       </Text>
+      <Text style={styles.title}>
+        {user?.firstName} {user?.lastName}
+      </Text>
+      <Text style={styles.title}>Changer le mot de passe</Text>
+      <CustomInputText
+        placeholder="Mot de passe actuel"
+        isPassword={true}
+        value={currentPassword}
+        onChangeText={(text) => setPassword(text)}
+      />
+      <CustomInputText
+        placeholder="Nouveau mot de passe"
+        isPassword={true}
+        value={newPassword}
+        onChangeText={(text) => setNewPassword(text)}
+      />
+      <CustomButton
+        title="Modifier le mot de passe"
+        isDisabled={false}
+        onPressAction={() =>
+          handleSubmitNewPassword(currentPassword, newPassword)
+        }
+      />
       <CustomButton
         title="Se déconnecter"
         isDisabled={false}

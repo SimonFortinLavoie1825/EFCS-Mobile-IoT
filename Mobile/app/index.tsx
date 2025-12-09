@@ -1,36 +1,46 @@
-import { FlatList, View } from "react-native";
+import { FlatList, View, StyleSheet } from "react-native";
 import PlayerCard from "./components/playerCard";
 import { useUserContext } from "@/hooks/useUser";
 import { useEffect, useState } from "react";
 import { User } from "@/types/User";
+import { useAuth } from "@/hooks/useAuth";
 
 export default function Index() {
-  const [userList, setUserList] = useState<User[]>([])
-  const {getAllUsers, isCurrentUser} = useUserContext()
+  const [users, setUsers] = useState<User[]>();
+  const { getAllUsers } = useUserContext();
+  const { user } = useAuth();
 
-  useEffect(()=>{
+  useEffect(() => {
     getAllUsers().then((data) => {
-      data.forEach(user => {
-        if(!isCurrentUser(user)) {
-          setUserList([...userList, user])
-        }
-      });
+      if (user?.userId) {
+        const filtered = data.filter((u) => u.userId !== user.userId);
+        setUsers(filtered);
+      } else {
+        setUsers(data);
+      }
     });
-  }, [])
+  }, [user]);
 
   return (
-    <View
-      style={{
-        flex: 1,
-        justifyContent: "center",
-        alignItems: "center",
-      }}
-    >
+    <View style={styles.container}>
       <FlatList
-        data={userList}
-        renderItem={({item : user}) => 
-            <PlayerCard name={user.name}></PlayerCard>
-        }/>
+        data={users}
+        renderItem={({ item: user }) => (
+          <PlayerCard
+            name={user.firstName}
+            opponentId={user.userId}
+          ></PlayerCard>
+        )}
+      />
     </View>
   );
 }
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: "center",
+    backgroundColor: "#fcfcfcff",
+    gap: 12,
+    margin: 4,
+  },
+});
