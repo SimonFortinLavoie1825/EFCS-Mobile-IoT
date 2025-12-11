@@ -9,7 +9,7 @@ class FirestoreDataManager {
         FirestoreDataManager();
         ~FirestoreDataManager();
         void startUp();
-        void saveChallenge(FirestoreChallenge challenge);
+        bool saveChallenge(int pointObtained, int index);
         bool loadChallenges(String playerId);
         FirestoreChallenge* getChallenges();   
         int getChallengeCount();

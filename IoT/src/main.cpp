@@ -26,16 +26,12 @@ void setup() {
 }
 
 void loop() {
-  // Enregistre les inputs
-  inputs.manageInputs();
-  
-  screenManager.update(inputs);
   screenManager.draw();
 
+  inputs.manageInputs();
   while (!inputs.hasJoystickInputs() && !inputs.buttonsPressed())
   {
     inputs.manageInputs();
+    screenManager.update(inputs);
   }
-
-  
 }

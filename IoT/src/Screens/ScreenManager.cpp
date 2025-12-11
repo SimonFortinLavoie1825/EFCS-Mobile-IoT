@@ -23,14 +23,8 @@ void ScreenManager::init() {
     //Start Mr. Firestore
     firestoreManager.startUp();
 
-    //Load tous les challenges du firestore et les mets dans le firestoreChallenges
-    firestoreManager.loadChallenges(PLAYER_ID);
-
     context = new Context;
-
-    //Ramasse tout les FirestoreChallenge et les mets dans Context.allChallenges
-    context->allChallenges = firestoreManager.getChallenges();
-    context->nbrChallenges = firestoreManager.getChallengeCount();
+    
     currentlyShownScreen = START_SCREEN;
 
     Serial.println("change screen");
@@ -44,8 +38,6 @@ void ScreenManager::draw() {
 
 // Update l'écran actuel et s'assure que le bon écran est affiché
 void ScreenManager::update(Inputs& inputs) {
-    Serial.println("update");
-    inputs.manageInputs();
     screen->update(inputs);
 
     ScreenType nextScreen = screen->getCurrentScreen();
@@ -58,15 +50,22 @@ void ScreenManager::update(Inputs& inputs) {
     if (currentlyShownScreen == ScreenType::END) {
         //Si le status du SelectedChallenge n'est plus pending ou n'est pas vide, ça veut dire que le challenge à été soit réussi, soit échoué. Dans tous les cas, on update les points dans le FirestoreManager
         if (context->selectedChallenge.status == "Reussi" || context->selectedChallenge.status == "Echoue") {
-            firestoreManager.saveChallenge(context->selectedChallenge);
-            context->selectedChallenge.status == "Enregistre";
-            Serial.println("Score saved");
+            int foundIndex = context->nbrChallenges+1;
+            
+            for (int i = 0; i < context->nbrChallenges; i++) {
+                if (context->allChallenges[i].index == context->selectedChallenge.index) {
+                    foundIndex = i;
+                    break;
+                }
+            }
 
-            firestoreManager.loadChallenges(PLAYER_ID);
-            context->allChallenges = firestoreManager.getChallenges();
-            context->nbrChallenges = firestoreManager.getChallengeCount();
-        } else {
-            Serial.println(context->selectedChallenge.status);
+            if (firestoreManager.saveChallenge(context->selectedChallenge.pointsObtained, foundIndex)) {
+                context->selectedChallenge.status = "Enregistre";
+
+                loadScores();
+            } else {
+                Serial.println("Failure in code saving");
+            }
         }
     }
 }
@@ -75,20 +74,42 @@ void ScreenManager::update(Inputs& inputs) {
 void ScreenManager::changeScreen(ScreenType newScreenType) {
     Screen* newScreen;
 
+    if (newScreenType == ScreenType::CHALLENGE) {
+        loadScores();
+
+        if (context->nbrChallenges == 0) {
+            newScreenType = ScreenType::NO_CHALLENGE;
+        }
+    }
+
     switch (newScreenType) {
     case ScreenType::CHALLENGE: {
         newScreen = new ChallengeScreen(ScreenType::CHALLENGE, ScreenType::DIFFICULTY, *context, dfScreen);
         
         //Prends tous les challengers et le met dans un array de texte
-        String* newText = new String[context->nbrChallenges];
+        String* newText = nullptr;
 
-        for (int i = 0; i < context->nbrChallenges; i++) {
-            newText[i] = context->allChallenges[i].challenger;
+        if (context->nbrChallenges != 0) {
+            newText = new String[context->nbrChallenges];
+
+            for (int i = 0; i < context->nbrChallenges; i++) {
+                newText[i] = context->allChallenges[i].challenger;
+            }
         }
 
         newScreen->setText(newText, context->nbrChallenges);
         delete[] newText;
 
+        break;
+    }
+    case ScreenType::NO_CHALLENGE: {
+        newScreen = new EndScreen(ScreenType::NO_CHALLENGE, ScreenType::CHALLENGE, *context, dfScreen);
+
+        //Fallback dans le cas où quelque chose arrive (Je sais pas comment mais ça fait pas mal de le mettre)
+        String newText[] = {"Aucun challenenge trouve", "Relancer la recherche"};
+        
+        newScreen->setText(newText, 2);
+        
         break;
     }
     case ScreenType::CHALLENGE_IN_PROGESS: {
@@ -119,7 +140,7 @@ void ScreenManager::changeScreen(ScreenType newScreenType) {
         newScreen = new EndScreen(ScreenType::END, ScreenType::CHALLENGE, *context, dfScreen);
 
         //Convertis le nombre de points en string
-        String pointsString = String(context->selectedChallenge.pointsObtained + '0');
+        String pointsString = String(context->selectedChallenge.pointsObtained);
         //Fait un array de String avec tous les textes et valeurs à écrire
         String newText[] = {"Partie finie, resultat de la partie: ", context->selectedChallenge.status, "Nombre points: ", pointsString, "Retour a la page principale?"};
         
@@ -144,4 +165,11 @@ void ScreenManager::changeScreen(ScreenType newScreenType) {
 
     screen = newScreen;
     delay(SWITCH_SCREEN_DELAY);
+}
+
+void ScreenManager::loadScores() {
+    firestoreManager.loadChallenges(PLAYER_ID);
+
+    context->allChallenges = firestoreManager.getChallenges();
+    context->nbrChallenges = firestoreManager.getChallengeCount();
 }

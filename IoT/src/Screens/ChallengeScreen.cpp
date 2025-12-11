@@ -30,5 +30,7 @@ void ChallengeScreen::switchScreen() {
   Serial.print(context->selectedChallenge.sequence);
   Serial.print(", Length: ");
   Serial.println(context->selectedChallenge.sequence.length());
+  Serial.print(", Index: ");
+  Serial.println(context->selectedChallenge.index);
   Screen::switchScreen();
 }

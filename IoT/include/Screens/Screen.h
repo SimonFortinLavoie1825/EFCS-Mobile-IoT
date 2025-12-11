@@ -9,9 +9,10 @@
 
 enum ScreenType {
     CHALLENGE,
+    NO_CHALLENGE,
     DIFFICULTY,
     CHALLENGE_IN_PROGESS,
-    END
+    END,
 };
 
 class Screen {

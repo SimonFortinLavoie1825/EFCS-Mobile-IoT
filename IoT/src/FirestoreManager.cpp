@@ -43,8 +43,8 @@ void FirestoreDataManager::startUp() {
 }
 
 // Enregistre le score du challenge donné par l'argument Challenge
-void FirestoreDataManager::saveChallenge(FirestoreChallenge challenge) {
-    challengeManager->updatePoints(challenge.index, challenge.pointsObtained);
+bool FirestoreDataManager::saveChallenge(int pointObtained, int index) {
+    return challengeManager->updatePoints(index, pointObtained);
 }
 
 bool FirestoreDataManager::loadChallenges(String playerId) {

@@ -23,6 +23,7 @@ void GameScreen::draw() {
     //Remplir avec du texte blanc 
     for (int i = 0; i < textCount; i++) {
         screen->setTextColor(COLOR_RGB565_WHITE);
+        screen->println(screenText[i]);
     }
 }
 
@@ -32,7 +33,8 @@ void GameScreen::update(Inputs& inputs) {
         gameRunning = true;
         codeManager.startCode();
         codeManager.showCodeLight(BASE_LED_DELAY_TIME / difficulty);
-    } else {
+    } 
+    else {
         if (inputs.currentButtonPressed() !=0) {
             // À faire seulement si le code est pas fini
             if (!codeManager.hasCodeEnded()) {
@@ -44,7 +46,7 @@ void GameScreen::update(Inputs& inputs) {
                 } else {
                     // Si non, l'utilisateur à échoué. Enregistre le statut du Challenge, enregistre le nombre de points perdu et change d'écran
                     context->selectedChallenge.status = "Echoue";
-                    context->selectedChallenge.pointsObtained = -codeManager.getCodeLength() * difficulty;
+                    context->selectedChallenge.pointsObtained = codeManager.getCodeLength() * -difficulty;
                     Screen::switchScreen();
                 }
             } 

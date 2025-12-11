@@ -60,8 +60,9 @@ void CodeManager::switchCodeIndex() {
 
 // Vérifie si l'input est égal à la couleur situé à l'index actuel du code, retourne True si la réponse est correcte, False si ce ne l'est pas
 bool CodeManager::verifyInput(int input) {
+    flashSingleLed(CODE_PINS[input-1], BASE_LED_DELAY_TIME/2);
+    
     if (code[codeIndex] == input) {
-        flashSingleLed(input, BASE_LED_DELAY_TIME/2);
         return true;
     } else {
         return false;

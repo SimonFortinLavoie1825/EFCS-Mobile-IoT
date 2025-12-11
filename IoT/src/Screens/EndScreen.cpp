@@ -13,14 +13,14 @@ void EndScreen::draw() {
     screen->setCursor(0, 0);
     screen->fillScreen(COLOR_RGB565_BLACK);
 
-    //Écrit en blanc
     for (int i = 0; i < textCount; i++) {
-        screen->setTextColor(COLOR_RGB565_WHITE);
-        screen->println(screenText[i]);
-
-        //À part pour la dernière option où on écrit en jaune (pour signifier un input du joueur)
+        //Pour la dernière option, on écrit en jaune (pour signifier un input du joueur)
         if (i == textCount-1) {
             screen->setTextColor(COLOR_RGB565_YELLOW);
+            screen->println(screenText[i]);
+        } else {
+            //Sinon on écrit en blanc
+            screen->setTextColor(COLOR_RGB565_WHITE);
             screen->println(screenText[i]);
         }
     }

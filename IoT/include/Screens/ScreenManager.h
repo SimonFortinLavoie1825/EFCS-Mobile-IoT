@@ -25,6 +25,8 @@ class ScreenManager {
 
         void changeScreen(ScreenType newScreenType);
     private:
+        void loadScores();
+
         ScreenType currentlyShownScreen;
         Screen* screen;
         Context* context;
