@@ -3,7 +3,7 @@ import {
   ChallengeContextType,
   LeaderboardUser,
 } from "@/types/Challenge";
-import { doc, getDoc, setDoc } from "firebase/firestore";
+import { collection, doc, getDoc, onSnapshot, setDoc } from "firebase/firestore";
 import { createContext, useEffect, useState } from "react";
 import { db } from "../firebaseConfig";
 import { useAuth } from "@/hooks/useAuth";
@@ -25,8 +25,13 @@ export function ChallengeContextProvider({
   const [currentUserPosition, setPosition] = useState<number>(0);
   const [leaderboard, setLeaderboard] = useState<LeaderboardUser[]>([]);
 
-  const loadRank = async () => {
+  useEffect(() => {
+  if (!user) return;
+
+  const unsub = onSnapshot(collection(db, "challenges"), async (snapshot) => {
+    // Tous les utilisateurs
     const users = await getAllUsers();
+
     const usersWithPoints = await Promise.all(
       users.map(async (u: User) => {
         const pts = await getPointsFromUsers(u.userId);
@@ -37,8 +42,10 @@ export function ChallengeContextProvider({
         };
       })
     );
+
     usersWithPoints.sort((a, b) => b.points - a.points);
     setLeaderboard(usersWithPoints);
+
     if (user?.userId) {
       const index = usersWithPoints.findIndex((u) => u.id === user.userId);
       if (index !== -1) {
@@ -46,11 +53,10 @@ export function ChallengeContextProvider({
         setPoints(usersWithPoints[index].points);
       }
     }
-  };
+  });
 
-  useEffect(() => {
-    loadRank();
-  }, [user]);
+  return () => unsub();
+}, [user]);
 
   /*Retourne les défis d'un utilisateur. Qu'ils soient complètés ou non*/
   async function getChallenge(userId: string): Promise<Challenge[]> {
