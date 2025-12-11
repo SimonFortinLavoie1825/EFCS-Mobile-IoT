@@ -25,7 +25,6 @@ void Inputs::manageInputs() {
 // Retourne True si le bouton associé à la pin de l'argument "btnPin" est pressé, False si il n'est pas pressé
 bool Inputs::manageButtonInput(int btnPin) {
     int val = digitalRead(btnPin);
-
     bool buttonPressed = false;
 
     if (val == LOW && !buttonPressed) {
@@ -33,7 +32,6 @@ bool Inputs::manageButtonInput(int btnPin) {
     } else if (val == HIGH) {
         buttonPressed = false;
     }
-
     return buttonPressed;
 }
 

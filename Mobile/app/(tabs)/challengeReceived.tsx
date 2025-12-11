@@ -55,10 +55,10 @@ export default function ReceivedChallenges() {
               Séquence : {item.sequence.length}
             </Text>
             <Text style={styles.detailText}>
-              Points potentiels : {item.sequence.length}
+              Points potentiels : {item.sequence.length} Mode expert: {item.sequence.length * 2}
             </Text>
             <Text style={styles.detailText}>
-              Points potentiels à infliger : {item.sequence.length}
+              Points potentiels à infliger : {item.sequence.length} Mode expert: {item.sequence.length * 2}
             </Text>
           </View>
         )}
