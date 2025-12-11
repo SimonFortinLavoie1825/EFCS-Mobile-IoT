@@ -15,7 +15,7 @@ export default function CompletedChallenges() {
     getCompletedChallenge(user.userId).then((data) => {
       setCompletedChallenge(data);
     });
-  }, []);
+  }, [user]);
 
   return (
     <View style={styles.container}>
@@ -26,7 +26,7 @@ export default function CompletedChallenges() {
       )}
       <FlatList
         data={completedChallenge}
-        keyExtractor={(item: Challenge, index: number) => index.toString()}
+        keyExtractor={(item, index) => item.challenger + "-" + index}
         renderItem={({ item, index }) => (
           <View style={styles.challengeCard}>
             <Text style={styles.challengeTitle}>Défi #{index + 1}</Text>

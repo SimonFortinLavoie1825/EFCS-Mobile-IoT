@@ -15,25 +15,23 @@ export default function ReceivedChallenges() {
     {}
   );
   useEffect(() => {
-    if (!user) return;
+  if (!user) return;
 
-    getPendingChallenge(user.userId).then((data) => {
-      setPendingChallenge(data);
-    });
+  const load = async () => {
+    const data = await getPendingChallenge(user.userId);
+    setPendingChallenge(data);
 
-    const loadChallengers = async () => {
-      const ids = pendingChallenge.map((c) => c.challenger);
-      const uniqueIds = [...new Set(ids)];
-      const result: Record<string, any> = {};
-      for (const id of uniqueIds) {
-        const userData = await getUser(id);
-        result[id] = userData ?? null;
-      }
-      setChallengerUsers(result);
-    };
+    const ids = [...new Set(data.map((c) => c.challenger))];
+    const result: Record<string, any> = {};
+    for (const id of ids) {
+      const userData = await getUser(id);
+      result[id] = userData;
+    }
+    setChallengerUsers(result);
+  };
 
-    loadChallengers();
-  }, [pendingChallenge]);
+  load();
+}, [user]);
 
   return (
     <View style={styles.container}>
@@ -44,7 +42,7 @@ export default function ReceivedChallenges() {
       )}
       <FlatList
         data={pendingChallenge}
-        keyExtractor={(item: Challenge) => item.challenger}
+        keyExtractor={(item, index) => item.challenger + "-" + index}
         renderItem={({ item }) => (
           <View style={styles.challengeCard}>
             <Text style={styles.fromText}>
