@@ -17,7 +17,7 @@ export function MainLayout() {
     const currentSegment = segments[0];
     
     if (isAuthenticated && currentSegment !== "(tabs)") router.replace("/");
-    else if (!isAuthenticated) router.replace("/");
+    else if (!isAuthenticated) router.push("/");
   }, [isAuthenticated]);
 
   return (

@@ -8,7 +8,7 @@ import FontAwesome from "@expo/vector-icons/FontAwesome";
 export default function DefaultTopBar() {
   return (
     <View style={styles.container}>
-      <Link href="/homeScreen" asChild>
+      <Link href="/" asChild>
         <FontAwesome size={40} name="home" />
       </Link>
       <Link href="/login" asChild>
