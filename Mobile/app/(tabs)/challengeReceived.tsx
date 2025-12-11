@@ -5,33 +5,40 @@ import { Challenge } from "@/types/Challenge";
 import React, { useEffect, useState } from "react";
 import { View, Text, StyleSheet, FlatList } from "react-native";
 
+// Écran "Défis reçus"
+// - Récupère les défis en attente pour l'utilisateur via useChallenge.getPendingChallenge.
+// - Charge aussi les informations des challengers via useUserContext.getUser pour afficher leur username.
+// - useEffect : effectue un chargement asynchrone des défis puis des utilisateurs correspondants.
+// - Structure d'affichage : FlatList montrant l'expéditeur, la longueur de la séquence et les points potentiels.
+// - Remarques : la map des challengerUsers évite des appels répétés au backend pour le même id.
+
 export default function ReceivedChallenges() {
   const [pendingChallenge, setPendingChallenge] = useState<Challenge[]>([]);
   const { getPendingChallenge } = useChallenge();
   const { user } = useAuth();
   const { getUser } = useUserContext();
-  //Idée de ChatGPT
+  //Prompt: Comment je peux attitrer les informations des utilisateurs qui ont envoyé plusieurs défis ?
   const [challengerUsers, setChallengerUsers] = useState<Record<string, any>>(
     {}
   );
   useEffect(() => {
-  if (!user) return;
+    if (!user) return;
 
-  const load = async () => {
-    const data = await getPendingChallenge(user.userId);
-    setPendingChallenge(data);
+    const load = async () => {
+      const data = await getPendingChallenge(user.userId);
+      setPendingChallenge(data);
 
-    const ids = [...new Set(data.map((c) => c.challenger))];
-    const result: Record<string, any> = {};
-    for (const id of ids) {
-      const userData = await getUser(id);
-      result[id] = userData;
-    }
-    setChallengerUsers(result);
-  };
+      const ids = [...new Set(data.map((c) => c.challenger))];
+      const result: Record<string, any> = {};
+      for (const id of ids) {
+        const userData = await getUser(id);
+        result[id] = userData;
+      }
+      setChallengerUsers(result);
+    };
 
-  load();
-}, [user]);
+    load();
+  }, [user]);
 
   return (
     <View style={styles.container}>

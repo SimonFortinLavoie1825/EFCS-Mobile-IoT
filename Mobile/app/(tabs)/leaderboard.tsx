@@ -5,6 +5,11 @@ import CustomButton from "../components/CustomButton";
 import { useAuth } from "@/hooks/useAuth";
 import { LeaderboardUser } from "@/types/Challenge";
 
+// Écran "Classement" (Leaderboard)
+// - Récupère le classement, la position et les points de l'utilisateur courant via useChallenge.
+// - Affiche une FlatList des joueurs (LeaderboardUser) avec leur rang et leurs points.
+// - Bouton "Défier" : pousse vers la route /opponent/[id] pour initier un défi, désactivé si l'utilisateur défie lui-même.
+
 export default function Leaderboard() {
   const { leaderboard, currentUserPoints, currentUserPosition } =
     useChallenge();

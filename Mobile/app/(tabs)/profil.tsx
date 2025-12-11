@@ -1,3 +1,10 @@
+// Écran "Profil" : affiche les informations de l'utilisateur connecté et propose des actions.
+// - Affiche : avatar (profileImage du UserContext), username, prénom/nom, position et points courants.
+// - Actions :
+//    * Changer l'avatar via DocumentPicker -> changeProfileImage (UserContext).
+//    * Modifier le mot de passe via modifyPassword (useAuth).
+//    * Se déconnecter via logout (useAuth).
+
 import { Text, Image, View, StyleSheet } from "react-native";
 import { useAuth } from "@/hooks/useAuth";
 import { useUserContext } from "@/hooks/useUser";
@@ -13,6 +20,9 @@ export default function Profil() {
   const { currentUserPoints, currentUserPosition } = useChallenge();
   const [currentPassword, setPassword] = useState<string>("");
   const [newPassword, setNewPassword] = useState<string>("");
+
+  // loadFile : ouvre le sélecteur de document (image) et appelle changeProfileImage avec l'URI sélectionné.
+  // - Gère les cas d'annulation et l'absence d'assets.
   async function loadFile(): Promise<void> {
     const result = await DocumentPicker.getDocumentAsync({
       type: "image/*",
@@ -25,6 +35,9 @@ export default function Profil() {
     const uri = result.assets[0].uri;
     changeProfileImage(uri);
   }
+
+  // handleSubmitNewPassword : passe l'ancien et le nouveau mot de passe à modifyPassword,
+  // puis nettoie les champs locaux.
   function handleSubmitNewPassword(oldPassword: string, newPassword: string) {
     modifyPassword(oldPassword, newPassword);
     setNewPassword("");

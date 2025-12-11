@@ -14,6 +14,13 @@ import CustomButton from "../components/CustomButton";
 import { useChallenge } from "@/hooks/useChallengeContext";
 import { useAuth } from "@/hooks/useAuth";
 
+// Écran "Créer un défi" pour un adversaire donné (paramètre id)
+// - Récupère les détails de l'adversaire via getUser(id) et affiche un loader pendant le fetch.
+// - Permet de construire une séquence (tableau de nombres) en ajoutant des LEDs (1/2/3), max 15 coups.
+// - addLed/removeLast/clearAll : fonctions utilitaires pour manipuler la séquence locale.
+// - sendChallenge : utilise createChallenge (useChallenge) pour poster le défi chez l'adversaire (Firestore).
+// - Gère le feedback utilisateur via message (succès/erreur) et réinitialise la séquence sur succès.
+
 export default function CreateChallenge() {
   const { id } = useLocalSearchParams();
   const { getUser } = useUserContext();
@@ -23,6 +30,7 @@ export default function CreateChallenge() {
   const [message, setMsg] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
 
+  // fetchUserDetail : charge les informations de l'adversaire et met l'état loading pendant l'opération
   async function fetchUserDetail(): Promise<void> {
     setLoading(true);
     const data = await getUser(id as string);
@@ -35,17 +43,20 @@ export default function CreateChallenge() {
 
   const [sequence, setSequence] = useState<number[]>([]);
 
+  // addLed / removeLast / clearAll : manipulation simple du tableau sequence avec limites
   const addLed = (value: number) => {
     if (sequence.length < 15) setSequence([...sequence, value]);
   };
   const removeLast = () => setSequence(sequence.slice(0, -1));
   const clearAll = () => setSequence([]);
+  // sendChallenge : compose la séquence sous forme de string et appelle createChallenge,
+  // puis affiche un message de retour et nettoie la séquence en cas de succès
   async function sendChallenge() {
     if (!opponent || !user) return;
     try {
       createChallenge(opponent.userId, user.userId, sequence.join(""));
       setSequence([]);
-      setMsg("Défi Créer avec succès")
+      setMsg("Défi Créer avec succès");
     } catch (error: any) {
       setMsg(error.message);
     }

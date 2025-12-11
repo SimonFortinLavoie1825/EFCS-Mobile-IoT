@@ -5,6 +5,11 @@ import { StyleSheet, Text, View } from "react-native";
 import CustomInputText from "@/app/components/CustomInputText";
 import CustomButton from "@/app/components/CustomButton";
 
+// Écran "Se connecter"
+// - Utilise useAuth().login pour authentifier l'utilisateur via Firebase.
+// - handleLogin : appelle login, nettoie les champs en cas de succès et capture le message d'erreur pour l'affichage.
+// - canLogin : indicateur simple pour activer/désactiver le bouton selon la présence d'email et mot de passe.
+
 export default function Login() {
   const { login } = useAuth();
   const [email, setEmail] = useState("");
@@ -12,6 +17,7 @@ export default function Login() {
   const [errorMsg, setErrorMsg] = useState("");
   const canLogin = email !== "" && password !== "";
 
+  // handleLogin : wrapper asynchrone qui appelle login(email, password) et gère les erreurs affichées.
   async function handleLogin(
     username: string,
     password: string
@@ -83,7 +89,7 @@ const styles = StyleSheet.create({
     textDecorationLine: "underline",
     textDecorationStyle: "solid",
   },
-    errorBox: {
+  errorBox: {
     color: "red",
     alignSelf: "center",
   },

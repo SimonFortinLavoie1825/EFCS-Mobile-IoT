@@ -10,6 +10,17 @@ import { useAuth } from "@/hooks/useAuth";
 import { useUserContext } from "@/hooks/useUser";
 import { User } from "@/types/User";
 
+// ChallengeContext : contexte pour gérer les défis et le classement (leaderboard).
+// - leaderboard : tableau ordonné des utilisateurs avec leurs points (calculés à partir des défis complétés).
+// - currentUserPoints / currentUserPosition : position et points de l'utilisateur connecté.
+// - Effet principal : onSnapshot sur la collection "challenges" pour recalculer le leaderboard en temps réel.
+//   Utilise getAllUsers() du UserContext puis getPointsFromUsers pour agréger les points.
+// - getChallenge(userId) : récupère la liste complète des défis d'un utilisateur (doc "challenges" => champs challenges).
+// - getPendingChallenge(userId) : filtre pour status === "pending".
+// - getCompletedChallenge(userId) : filtre pour status === "completed".
+// - getPointsFromUsers(userId) : somme les pointsObtained de tous les défis complétés pour un utilisateur.
+// - createChallenge(targetUserId, challengerId, sequence) : ajoute un nouveau défi (status "pending") au document Firestore
+//   correspondant au targetUserId (création du doc si inexistant). Gestion d'erreur basique avec throw.
 export const ChallengeContext = createContext<ChallengeContextType | null>(
   null
 );

@@ -6,6 +6,11 @@ import { useState } from "react";
 import * as DocumentPicker from "expo-document-picker";
 import { StyleSheet, Text, View, Image } from "react-native";
 
+// Écran "S'inscrire"
+// - Récupère les champs utilisateur et appelle register (useAuth) pour créer le compte Firebase + document Firestore.
+// - Après inscription, met à jour l'avatar via changeProfileImage (UserContext).
+// - loadFile : ouvre DocumentPicker pour sélectionner une image et stocke l'URI localement.
+// - Affiche les messages d'erreur renvoyés par la méthode register.
 export default function Register() {
   const { register } = useAuth();
   const { changeProfileImage } = useUserContext();
@@ -18,6 +23,8 @@ export default function Register() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [errorMsg, setErrorMsg] = useState("");
 
+  // handleSubmitUser : wrapper asynchrone pour appeler register avec les champs et gérer les erreurs,
+  // puis réinitialiser les champs locaux.
   async function handleSubmitUser(
     username: string,
     email: string,
@@ -47,6 +54,7 @@ export default function Register() {
     }
   }
 
+  // loadFile : ouvre le sélecteur de fichiers (image/*) et stocke l'URI en state.
   async function loadFile(): Promise<void> {
     const result = await DocumentPicker.getDocumentAsync({
       type: "image/*",

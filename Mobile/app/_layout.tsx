@@ -7,6 +7,11 @@ import { useAuth } from "@/hooks/useAuth";
 import { useEffect } from "react";
 import AvatarMenu from "./components/avatarMenu";
 
+// MainLayout:
+// - Composant qui orchestre la navigation principale (Stack) de l'application.
+// - Utilise useSegments() pour connaître le segment actuel de la route (structure expo-router).
+// - useEffect : redirige vers la racine (tabs) si authentifié et n'est pas déjà sur (tabs).
+//               si non authentifié, pousse vers la page d'accueil (login/index selon routing).
 export function MainLayout() {
   const { isAuthenticated } = useAuth();
   const segments = useSegments();
@@ -66,6 +71,10 @@ export function MainLayout() {
   );
 }
 
+// RootLayout:
+// - Fournit les Context Providers : AuthenticationContextProvider, UserContextProvider, ChallengeContextProvider.
+// - Assure que tous les composants enfants ont accès aux contextes pour l'authentification, l'utilisateur et les défis.
+// - MainLayout est rendu comme enfant pour garder la séparation concernée entre providers et UI.
 export default function RootLayout() {
   return (
     <AuthenticationContextProvider>

@@ -34,7 +34,11 @@ export default function AvatarMenu() {
       </Link>
       <TouchableOpacity onPress={() => setOpen(!open)}>
         <Image
-          source={{ uri: profileImage}}
+          source={
+            profileImage
+              ? { uri: profileImage }
+              : require("./assets/images/icon.png")
+          }
           style={styles.avatarImage}
         />
       </TouchableOpacity>

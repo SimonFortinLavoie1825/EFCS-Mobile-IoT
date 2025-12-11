@@ -5,11 +5,18 @@ import { useEffect, useState } from "react";
 import { User } from "@/types/User";
 import { useAuth } from "@/hooks/useAuth";
 
+// Écran d'accueil (liste des joueurs)
+// - Utilise getAllUsers() du UserContext pour récupérer tous les utilisateurs depuis Firestore.
+// - Filtre l'utilisateur courant pour ne pas afficher la carte de soi-même.
+// - Affiche une FlatList de PlayerCard (composant réutilisable) pour initier un défi vers un adversaire.
+
 export default function Index() {
   const [users, setUsers] = useState<User[]>();
   const { getAllUsers } = useUserContext();
   const { user } = useAuth();
 
+  // useEffect : charge la liste des utilisateurs au montage / quand la session change.
+  // - Filtre l'utilisateur courant si present.
   useEffect(() => {
     getAllUsers().then((data) => {
       if (user?.userId) {

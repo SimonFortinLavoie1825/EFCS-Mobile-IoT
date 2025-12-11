@@ -4,6 +4,11 @@ import { Challenge } from "@/types/Challenge";
 import React, { useEffect, useState } from "react";
 import { View, Text, StyleSheet, FlatList } from "react-native";
 
+// Écran "Défis complétés"
+// - Récupère la liste des défis complétés pour l'utilisateur courant via useChallenge.getCompletedChallenge.
+// - useEffect : déclenché quand l'utilisateur (user) est disponible.
+// - Affiche une FlatList des défis complétés avec des détails (auteur, points obtenus, longueur de la séquence).
+
 export default function CompletedChallenges() {
   const [completedChallenge, setCompletedChallenge] = useState<Challenge[]>([]);
   const { getCompletedChallenge } = useChallenge();

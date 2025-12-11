@@ -5,6 +5,13 @@ import { createContext, useEffect, useState } from "react";
 import { db } from "../firebaseConfig";
 import { useAuth } from "@/hooks/useAuth";
 
+// UserContext : fournit les données et actions liées aux utilisateurs côté client.
+// - profileImage : URI de l'avatar courant (persisté localement via AsyncStorage par utilisateur).
+// - changeProfileImage(newAvatar) : met à jour l'état et déclenche la persistance locale.
+// - getAllUsers() : récupère tous les documents de la collection "users" depuis Firestore et les mappe en type User.
+// - getUser(id) : récupère un utilisateur précis depuis Firestore, retourne null si introuvable.
+// - Comportement : au montage, charge l'avatar depuis AsyncStorage si présent; sauvegarde l'avatar quand il change.
+
 export const UserContext = createContext<UserContextType | null>(null);
 
 export function UserContextProvider({

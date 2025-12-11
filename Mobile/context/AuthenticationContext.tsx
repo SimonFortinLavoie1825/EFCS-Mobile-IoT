@@ -15,6 +15,16 @@ import { auth, db } from "../firebaseConfig";
 import { AuthenticationContextType } from "../types/Authentication";
 import { Alert } from "react-native";
 
+// AuthenticationContext : gère l'authentification Firebase et expose les actions utilisateur.
+// - isAuthenticated : état booléen (ou undefined pendant la détection initiale) indiquant si un utilisateur est connecté.
+// - user : données utilisateur lues depuis Firestore (collection "users") après connexion.
+// - Effet onAuthStateChanged : écoute les changements d'état d'authentification Firebase et synchronise isAuthenticated et user.
+// - register(username, email, password, confirmPassword, firstName, lastName) : crée un compte Firebase Auth,
+//   stocke les infos dans Firestore et met à jour l'état local. Valide correspondance des mots de passe.
+// - login(email, password) : se connecte via Firebase Auth et récupère le document utilisateur Firestore.
+// - logout() : déconnecte l'utilisateur via Firebase Auth.
+// - modifyPassword(oldPassword, newPassword) : réauthentifie l'utilisateur puis met à jour le mot de passe (EmailAuthProvider + reauthenticateWithCredential + updatePassword).
+
 export const AuthenticationContext =
   createContext<AuthenticationContextType | null>(null);
 
